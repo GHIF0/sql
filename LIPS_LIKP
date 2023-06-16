@@ -1,0 +1,45 @@
+WITH
+	likp AS (
+		SELECT
+			MANDT as client,
+			VBELN as document_number,
+			WADAT as planned_date,
+			KODAT as picking_date,
+			KUNNR as shipto_party,
+			VKORG as sales_organization
+		FROM
+			"RXWSSTD"."products.wsstd.dv.p2r::DV_LIKP"
+	),
+	lips AS (
+		SELECT
+			MANDT as client,
+			VBELN as delivery,
+			POSNR as delivery_item,
+			MATNR as material_number,
+			CHARG as batch_number,
+			LFIMG as quantity_delivered,
+			MEINS as unit_of_measure,
+			ARKTX as material_name,
+			WERKS as plant
+		FROM
+			"RXWSSTD"."products.wsstd.dv.p2r::DV_LIPS"
+		WHERE
+			WERKS = 'BYYL'
+	)
+SELECT DISTINCT
+	lips.client,
+	lips.delivery,
+	lips.delivery_item,
+	lips.material_number,
+	lips.batch_number,
+	lips.quantity_delivered,
+	lips.unit_of_measure,
+	lips.material_name,
+	lips.plant,
+	likp.planned_date,
+	likp.picking_date,
+	likp.shipto_party,
+	likp.sales_organization
+FROM
+	lips
+	INNER JOIN likp ON lips.delivery = likp.document_number
